@@ -1,18 +1,23 @@
 #! /usr/bin/env python3
 import psycopg2
 
-DBNAME = "news"
+def connect(database_name="news"):
+    try:
+        db = psycopg2.connect("dbname={}".format(database_name))
+        cursor = db.cursor()
+        return db, cursor
+    except psycopg2.DatabaseError, e:
+        print("<Could not connect to database>")
 
 
 def get_top_articles():
     """Print top 3 articles of all time."""
-    db = psycopg2.connect(database=DBNAME)
-    c = db.cursor()
-    c.execute("""SELECT * FROM (SELECT title, count(*) AS num FROM articles
+    db, cursor = connect()
+    cursor.execute("""SELECT * FROM (SELECT title, count(*) AS num FROM articles
             JOIN log ON log.path LIKE '%' || articles.slug || '%'
             WHERE status = '200 OK' GROUP by title ORDER by num DESC)
             AS topthree LIMIT 3;""")
-    posts = c.fetchall()
+    posts = cursor.fetchall()
     db.close()
     for item in posts:
         print("'{}' - {} views".format(item[0], item[1]))
@@ -20,11 +25,10 @@ def get_top_articles():
 
 def get_top_authors():
     """Print top authors."""
-    db = psycopg2.connect(database=DBNAME)
-    c = db.cursor()
-    c.execute("""SELECT name, author_views.num FROM authors
+    db, cursor = connect()
+    cursor.execute("""SELECT name, author_views.num FROM authors
             JOIN author_views on authors.id = author_views.author;""")
-    posts = c.fetchall()
+    posts = cursor.fetchall()
     db.close()
     for item in posts:
         print("{} - {} views".format(item[0], item[1]))
@@ -32,11 +36,10 @@ def get_top_authors():
 
 def get_errors():
     """Print days where more than 1% of request lead to errors."""
-    db = psycopg2.connect(database=DBNAME)
-    c = db.cursor()
-    c.execute("""SELECT date, round(cast(percent_errors as numeric), 1)
+    db, cursor = connect()
+    cursor.execute("""SELECT date, round(cast(percent_errors as numeric), 1)
             as percentage FROM errors_per_day where percent_errors >= 1;""")
-    posts = c.fetchall()
+    posts = cursor.fetchall()
     db.close()
     for item in posts:
         print("{} - {}% errors ".format(item[0], item[1]))
