@@ -1,9 +1,9 @@
 # newsdata.py
----
+
 newsdata.py is  python script which extracts data from a PostgreSQL database using the `psycopg2` python module. It was created to illustrate my working knowledge of SQL database structure, commands and syntax.
 
 # Quickstart
----
+
 ### Database Installation & Setup (Linux)
 
 `$ sudo apt-get install postgresql`
@@ -39,5 +39,5 @@ newsdata.py was designed to extract the following:
 3. Days where greater than 1% of request led to errors
 
 ## License
-___
+
 [CC-BY](https://creativecommons.org/licenses/by/3.0/)
